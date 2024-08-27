@@ -1,30 +1,23 @@
 <script setup lang="ts">
 const router = useRouter()
 const { isMobile } = useDevice()
-const props = ref<Boolean>(false)
-// 控制菜单收缩
-const menuStatus = ref<Boolean>(false)
 
 const toggleTheme = () => {
   if (isDark.value) {
     // 恢复亮色主题
-    document.body.removeAttribute('arco-theme')
     localStorage.setItem('diyfile-theme', 'light')
   } else {
     // 设置为暗黑主题
-    document.body.setAttribute('arco-theme', 'dark')
     localStorage.setItem('diyfile-theme', 'dark')
   }
   toggleDark()
 }
 
-const onMenuCollapse = () => {
-  menuStatus.value = !menuStatus.value
-}
-
 /** 路由切换 */
 const routerPage = (val: string) => {
-  if (val === '2_0') {
+  if (val === '/') {
+    router.push('/')
+  } else if (val === '2_0') {
     router.push('/@admin/setting/storage')
   } else if (val === '2_1') {
     router.push('/@admin/setting/backup')
@@ -35,7 +28,7 @@ const routerPage = (val: string) => {
   } else if (val === '3_1') {
     router.push('/@admin/system/user')
   } else if (val === '3_2') {
-    router.push('/@admin/system/faqs')
+    router.push('/@admin/system/manual')
   } else {
     router.push('/@admin')
   }
@@ -43,31 +36,24 @@ const routerPage = (val: string) => {
 </script>
 
 <template>
-  <a-layout style="height: 100%;">
-    <a-layout-header>
-      <Header @toggleTheme="toggleTheme" :value="props" />
-    </a-layout-header>
-    <a-layout>
-      <a-layout-sider
-        hide-trigger
-        collapsible
-        :collapsed="menuStatus"
-        v-if="!isMobile"
-      >
-        <PopMenu @onMenuCollapse="onMenuCollapse" @routerPage="routerPage"/>
-      </a-layout-sider>
-      <a-layout-content v-if="isMobile" style="margin-bottom: 56px;">
-        <RouterView />
-      </a-layout-content>
-      <a-layout-content v-else>
-        <RouterView />
-      </a-layout-content>
-    </a-layout>
-    <a-layout-footer v-if="isMobile" style="position: fixed; bottom: 0; width: 100%;">
-      <MobileMenu @routerPage="routerPage" />
-    </a-layout-footer>
-    <a-layout-footer v-else>
-      <Footer />
-    </a-layout-footer>
-  </a-layout>
+  <div>
+    <n-layout position="absolute">
+      <n-layout-header style="height: 60px" bordered>
+        <Header @toggleTheme="toggleTheme" />
+      </n-layout-header>
+      <n-layout has-sider position="absolute" style="margin-top: 60px; height: calc(100% - 60px)">
+        <n-layout-sider v-if="!isMobile" bordered collapse-mode="width" width="188">
+          <PopMenu h-full @routerPage="routerPage" />
+        </n-layout-sider>
+        <n-layout h-full>
+          <n-layout-content content-style="padding: 0.25rem;" style="height: calc(100% - 60px)">
+            <RouterView />
+          </n-layout-content>
+          <n-layout-footer v-if="isMobile" style="height: 60px">
+            <MobileMenu style="height: 60px" @routerPage="routerPage" />
+          </n-layout-footer>
+        </n-layout>
+      </n-layout>
+    </n-layout>
+  </div>
 </template>

@@ -4,41 +4,29 @@ import User from '~/pages/@admin/system/setting/user.vue'
 import Web from '~/pages/@admin/system/setting/web.vue'
 
 const { t } = useI18n()
+const { isMobile } = useDevice()
 </script>
 
 <template>
-  <div
-    :style="{
-      boxSizing: 'border-box',
-      width: '100%',
-      padding: '0.25rem',
-      height: '100%',
-      backgroundColor: 'var(--color-fill-2)',
-    }"
-  >
-    <a-card hoverable :style="{ width: '100%', height: '100%', marginBottom: '16px' }" :title="t('menu.system.setting')">
-      <a-row class="wrapper mx-auto max-w-screen-sm">
-        <a-col :span="24">
-          <a-tabs default-active-key="1" type="rounded">
-            <a-tab-pane key="1" :title="t('setting.base')">
-              <Base />
-            </a-tab-pane>
-            <a-tab-pane key="2" :title="t('setting.web')">
-              <Web />
-            </a-tab-pane>
-            <a-tab-pane key="3" :title="t('setting.user')">
-              <User />
-            </a-tab-pane>
-          </a-tabs>
-        </a-col>
-      </a-row>
-    </a-card>
+  <div flex grid justify-start justify-center items-center h-8>
+    <p mr-auto text-base font-medium ml-0.25rem>{{ t('menu.system.setting') }}</p>
+    <div>
+    </div>
+  </div>
+  <div content-style="padding: 0;" flex justify-center h-full w-full mt-1 of-auto style="height: calc(100% - 4rem); -ms-overflow-style: none;">
+    <n-tabs type="line" animated :class="isMobile ? '' : 'w-160'">
+      <n-tab-pane :name="t('setting.base')" :tab="t('setting.base')">
+        <Base />
+      </n-tab-pane>
+      <n-tab-pane :name="t('setting.web')" :tab="t('setting.web')">
+        <Web />
+      </n-tab-pane>
+      <n-tab-pane :name="t('setting.user')" :tab="t('setting.user')">
+        <User />
+      </n-tab-pane>
+    </n-tabs>
   </div>
 </template>
-
-<style scoped>
-
-</style>
 
 <route lang="yaml">
 meta:

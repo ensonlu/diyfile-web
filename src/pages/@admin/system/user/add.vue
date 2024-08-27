@@ -1,11 +1,14 @@
 <script setup lang="ts">
-import { Message } from '@arco-design/web-vue'
+import type { FormInst, FormRules, SelectGroupOption, SelectOption } from 'naive-ui'
 import type { User } from '~/api/interface/user'
 import { userAdd } from '~/api/modules/user'
+import { ResultEnum } from '~/enums/httpEnum'
 
 const router = useRouter()
 const { t } = useI18n()
-const emailTipData = ref()
+const { isMobile } = useDevice()
+const message = useMessage()
+const formRef = ref<FormInst | null>(null)
 
 const addUserRuleForm = reactive<User.AddUserRequestData>({
   /** 用户名 */
@@ -26,96 +29,123 @@ const addUserRuleForm = reactive<User.AddUserRequestData>({
   remark: undefined,
 })
 
-const handleSubmit = () => {
-  userAdd(addUserRuleForm).then((res) => {
-    if (res.code === 200) {
-      Message.info(res.message)
-      router.push('/@admin/system/user')
-    }
-  })
+const rules: FormRules = {
+  username: [
+    { required: true, message: '用户名不能为空！', trigger: 'blur' },
+    { min: 6, max: 20, message: '用户名长度在 6~20 之间', trigger: 'blur' },
+  ],
+  password: [
+    { required: true, message: '密码不能为空！', trigger: 'blur' },
+    { min: 6, max: 20, message: '密码长度在 6~20 之间', trigger: 'blur' },
+  ],
+  role: [
+    { required: true, message: '角色必选！', trigger: 'blur' },
+  ],
+  name: [
+    { required: true, message: '昵称必填！', trigger: 'blur' },
+  ],
 }
 
-const handleEmailSearch = (value: string) => {
-  if (value) {
-    emailTipData.value = [
-      value.concat('@qq.com'),
-      value.concat('@163.com'),
-      value.concat('@foxmail.com'),
-      value.concat('@gmail.com'),
-      value.concat('@outlook.com'),
-    ]
-  }
+const options = ref<Array<SelectOption | SelectGroupOption>>([
+  {
+    label: '超级管理员',
+    value: 'platform-super-admin',
+    disabled: true,
+  },
+  {
+    label: '平台管理员',
+    value: 'platform-admin',
+  },
+  {
+    label: '平台运维员',
+    value: 'platform-self-provisioner',
+  },
+  {
+    label: '平台观察员',
+    value: 'platform-view',
+  },
+  {
+    label: '游客',
+    value: 'platform-visitor',
+  },
+])
+
+const handleSubmit = () => {
+  formRef.value?.validate((errors) => {
+    if (!errors) {
+      userAdd(addUserRuleForm).then((res) => {
+        if (res.code === ResultEnum.SUCCESS) {
+          message.success(res.message)
+          router.push('/@admin/system/user')
+        }
+      })
+    } else {
+      console.log(errors)
+      message.error('请检查您的内容！')
+    }
+  })
 }
 </script>
 
 <template>
-  <div
-    :style="{
-      boxSizing: 'border-box',
-      width: '100%',
-      padding: '0.25rem',
-      height: '100%',
-      backgroundColor: 'var(--color-fill-2)',
-    }"
-  >
-    <a-card hoverable :style="{ height: '100%', padding: '0.25rem' }" :title="t('tip.cardTitle')">
-      <template #extra>
-        <a-space>
-          <a-button type="primary" @click="handleSubmit">{{ t('button.submit') }}</a-button>
-        </a-space>
-      </template>
-      <icon-arrow-left class="cursor-pointer" @click="router.back()"/>
-      <br/>
-      <a-row>
-        <a-col :xs="1" :sm="6" :md="6" :lg="6" :xl="6" :xxl="6"></a-col>
-        <a-col :xs="22" :sm="12" :md="12" :lg="12" :xl="12" :xxl="12">
-          <a-form :model="addUserRuleForm" layout="vertical">
-            <a-form-item field="username" :label="t('user.username')" required>
-              <a-input v-model="addUserRuleForm.username" placeholder="请输入存储名称" :max-length="{ length: 20, errorOnly: true }" show-word-limit allow-clear />
-            </a-form-item>
-            <a-form-item field="password" :label="t('user.password')" required>
-              <a-input-password v-model="addUserRuleForm.password" placeholder="请输入密码" :max-length="{ length: 20, errorOnly: true }" show-word-limit allow-clear />
-            </a-form-item>
-            <a-form-item field="avatar" :label="t('user.avatar')">
-              <a-input v-model="addUserRuleForm.avatar" placeholder="头像地址" allow-clear />
-            </a-form-item>
-            <a-form-item field="role" :label="t('user.role')" required>
-              <a-select v-model="addUserRuleForm.role" :placeholder="t('tip.rolePh')" allow-clear>
-                <a-option value="platform-super-admin" disabled>超级管理员</a-option>
-                <a-option value="platform-admin">平台管理员</a-option>
-                <a-option value="platform-self-provisioner">平台运维员</a-option>
-                <a-option value="platform-view">平台观察员</a-option>
-                <a-option value="platform-visitor">游客</a-option>
-              </a-select>
-            </a-form-item>
-            <a-form-item field="email" :label="t('user.email')">
-              <a-auto-complete v-model="addUserRuleForm.email" :data="emailTipData" placeholder="请输入邮箱" @search="handleEmailSearch" />
-            </a-form-item>
-            <a-form-item field="name" :label="t('user.name')">
-              <a-input v-model="addUserRuleForm.name" placeholder="请输入昵称" ::max-length="{ length: 20, errorOnly: true }" show-word-limit allow-clear />
-            </a-form-item>
-            <a-form-item field="telephone" :label="t('user.telephone')">
-              <a-input v-model="addUserRuleForm.telephone" placeholder="请输入手机号" :max-length="{ length: 11, errorOnly: true }" show-word-limit allow-clear>
-                <template #prepend>
-                  +86
-                </template>
-              </a-input>
-            </a-form-item>
-            <a-form-item field="remark" :label="t('user.remark')">
-              <a-textarea v-model="addUserRuleForm.remark" placeholder="请输入备注" allow-clear auto-size :max-length="{ length: 200, errorOnly: true }" show-word-limit />
-            </a-form-item>
-          </a-form>
-          <!-- TODO 表单校验 -->
-        </a-col>
-        <a-col :xs="1" :sm="6" :md="6" :lg="6" :xl="6" :xxl="6"></a-col>
-      </a-row>
-    </a-card>
+  <div flex grid justify-start justify-center items-center h-8>
+    <div mr-auto>
+      <n-icon size="22" @click="router.back()" class="cursor-pointer ml-0.25rem">
+        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 32 32">
+          <path d="M26 4h2v24h-2z" fill="currentColor"></path>
+          <path d="M11.414 20.586L7.828 17H22v-2H7.828l3.586-3.586L10 10l-6 6l6 6l1.414-1.414z" fill="currentColor"></path>
+        </svg>
+      </n-icon>
+    </div>
+    <div>
+      <n-icon size="22" @click="handleSubmit" class="cursor-pointer mr-0.25rem">
+        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 32 32">
+          <path d="M13 24l-9-9l1.414-1.414L13 21.171L26.586 7.586L28 9L13 24z" fill="currentColor"></path>
+        </svg>
+      </n-icon>
+    </div>
+  </div>
+  <div content-style="padding: 0;" h-full w-full mt-1 of-auto onscroll style="height: calc(100% - 4rem); -ms-overflow-style: none;">
+    <n-grid cols="5" item-responsive responsive="screen">
+      <n-grid-item offset="0 m:1 l:1" span="5 m:3 l:3">
+        <n-form ref="formRef" :model="addUserRuleForm" :rules="rules">
+          <n-form-item :label="t('user.username')" path="username" required>
+            <n-input v-model:value="addUserRuleForm.username" placeholder="请输入用户名称" clearable show-count :maxlength="20" />
+          </n-form-item>
+          <n-form-item :label="t('user.password')" path="password" required>
+            <n-input
+              v-model:value="addUserRuleForm.password"
+              type="password"
+              show-password-on="click"
+              placeholder="请输入密码"
+              show-count
+              :maxlength="20"
+            />
+          </n-form-item>
+          <n-form-item :label="t('user.role')" path="role" required>
+            <n-select v-model:value="addUserRuleForm.role" :options="options" />
+          </n-form-item>
+          <n-form-item :label="t('user.avatar')" path="avatar">
+            <n-input v-model:value="addUserRuleForm.avatar" placeholder="头像地址" clearable />
+          </n-form-item>
+          <n-form-item :label="t('user.name')" path="name" required>
+            <n-input v-model:value="addUserRuleForm.name" placeholder="请输入昵称" clearable />
+          </n-form-item>
+          <n-form-item :label="t('user.email')" path="email">
+            <n-input v-model:value="addUserRuleForm.email" placeholder="请输入邮箱" clearable />
+          </n-form-item>
+          <n-form-item :label="t('user.telephone')" path="telephone">
+            <n-input-group-label>+86</n-input-group-label>
+            <n-input v-model:value="addUserRuleForm.telephone" placeholder="请输入手机号" clearable />
+          </n-form-item>
+          <n-form-item :label="t('storage.remark')" path="remark">
+            <n-input v-model:value="addUserRuleForm.remark" type="textarea" placeholder="请输入备注" maxlength="160" show-count />
+          </n-form-item>
+        </n-form>
+      </n-grid-item>
+    </n-grid>
   </div>
 </template>
-
-<style scoped>
-
-</style>
 
 <route lang="yaml">
 meta:

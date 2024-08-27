@@ -16,7 +16,8 @@ button:
   quit: サインアウト
   login: ログイン
   copy: コピー
-  copyUrl: 直リンクをコピー
+  copyUrl: リンクをコピー
+  copyProxyUrl: プロキシリンクをコピー
   copyOk: 正常にコピー
   add: 追加
   edit: 編集
@@ -27,6 +28,11 @@ button:
   type: ストレージタイプ
   pwd: パスワードを変更する
   download: ダウンロード
+  proxyDownload: プロキシダウンロード
+  backup: バックアップ
+  selectFile: ファイルを選択
+  restore: リストア
+  open: 開く
 intro:
   desc: 固執された Vite スターターテンプレート
   dynamic-route: 動的ルートのデモ
@@ -50,6 +56,7 @@ tip:
   isRememberMe: 覚えて
   cardTitle: 情報を記入してください
   rolePh: 役割を選択してください
+  empty: 何もありません！
 menu:
   index: コンソール
   setting:
@@ -61,7 +68,7 @@ menu:
     index: システム
     setting: 設定
     user: ユーザー
-    faqs: よくある質問
+    manual: マニュアル
 message:
   error: 間違い
 tag:
@@ -97,3 +104,6 @@ setting:
   base: 基本構成
   web: Webサイト構成
   user: ユーザー構成
+header:
+  docs: ドキュメント
+  github: Github

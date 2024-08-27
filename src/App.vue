@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { darkTheme } from 'naive-ui'
+
 const user = useUserStore()
 // https://github.com/vueuse/head
 // you can use this to manipulate the document head in any components,
@@ -23,5 +25,12 @@ useHead({
 </script>
 
 <template>
-  <RouterView />
+  <NConfigProvider
+    class="w-full h-full"
+    :theme="isDark ? darkTheme : undefined"
+  >
+    <Application>
+      <RouterView />
+    </Application>
+  </NConfigProvider>
 </template>

@@ -16,7 +16,8 @@ button:
   quit: 退出
   login: 登录
   copy: 复制
-  copyUrl: 复制直链
+  copyUrl: 复制链接
+  copyProxyUrl: 复制直链
   copyOk: 复制成功
   add: 新增
   edit: 编辑
@@ -27,6 +28,11 @@ button:
   type: 存储类型
   pwd: 密码修改
   download: 下载
+  proxyDownload: 代理下载
+  backup: 备份
+  selectFile: 选择文件
+  restore: 恢复
+  open: 打开
 intro:
   desc: 固执己见的 Vite 项目模板
   dynamic-route: 动态路由演示
@@ -51,6 +57,7 @@ tip:
   isRememberMe: 记住我
   cardTitle: 请填写信息
   rolePh: 请选择角色
+  empty: 什么都没有呢！
 menu:
   index: 控制台
   setting:
@@ -62,7 +69,7 @@ menu:
     index: 系统
     setting: 设置
     user: 用户
-    faqs: 常见问题
+    manual: 手册
 message:
   error: 错误
 tag:
@@ -98,3 +105,6 @@ setting:
   base: 基础配置
   web: 网站配置
   user: 用户配置
+header:
+  docs: 文档
+  github: Github

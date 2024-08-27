@@ -1,41 +1,35 @@
 <script setup lang="ts">
 const router = useRouter()
 const { t } = useI18n()
+const { isMobile } = useDevice()
 </script>
 
 <template>
-  <div
-    :style="{
-      boxSizing: 'border-box',
-      width: '100%',
-      padding: '0.25rem',
-      height: '100%',
-      backgroundColor: 'var(--color-fill-2)',
-    }"
-  >
-    <a-card hoverable :style="{ height: '100%', padding: '0.25rem' }" :title="t('tip.cardTitle')">
-      <icon-arrow-left class="cursor-pointer" @click="router.back()"/>
-      <br/>
-      <a-row>
-        <a-col :xs="1" :sm="6" :md="6" :lg="6" :xl="6" :xxl="6"></a-col>
-        <a-col :xs="22" :sm="12" :md="12" :lg="12" :xl="12" :xxl="12">
-          <br />
-          <a-space direction="vertical" fill>
-            <a-button type="primary" long disabled @click="router.push({ path: '/@admin/setting/storage/add/local', query: { type: 0 } })">本地存储(开发中)</a-button>
-            <a-button type="primary" long @click="router.push({ path: '/@admin/setting/storage/add/oneDrive', query: { type: 1 } })">OneDrive</a-button>
-            <a-button type="primary" long disabled @click="router.push({ path: '/@admin/setting/storage/add/aliyunOSS', query: { type: 2 } })">阿里云OSS(开发中)</a-button>
-            <a-button type="primary" long disabled>更多存储支持中...</a-button>
-          </a-space>
-        </a-col>
-        <a-col :xs="1" :sm="6" :md="6" :lg="6" :xl="6" :xxl="6"></a-col>
-      </a-row>
-    </a-card>
+  <div flex grid justify-start justify-center items-center h-8>
+    <div mr-auto>
+      <n-icon size="22" @click="router.back()" class="cursor-pointer ml-0.25rem">
+        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 32 32">
+          <path d="M26 4h2v24h-2z" fill="currentColor"></path>
+          <path d="M11.414 20.586L7.828 17H22v-2H7.828l3.586-3.586L10 10l-6 6l6 6l1.414-1.414z" fill="currentColor"></path>
+        </svg>
+      </n-icon>
+    </div>
+  </div>
+  <div content-style="padding: 0;" h-full w-full mt-1 of-auto onscroll style="height: calc(100% - 4rem); -ms-overflow-style: none;">
+    <n-grid cols="5" item-responsive responsive="screen">
+      <n-grid-item offset="0 m:1 l:1" span="5 m:3 l:3">
+        <div flex flex-col class="space-y-3">
+          <n-button @click="router.push({ path: '/@admin/setting/storage/add/local', query: { type: 0 } })" ghost>本地存储</n-button>
+          <n-button @click="router.push({ path: '/@admin/setting/storage/add/oneDrive', query: { type: 1 } })" ghost>OneDrive</n-button>
+          <n-button @click="router.push({ path: '/@admin/setting/storage/add/aliyunOSS', query: { type: 2 } })" ghost>阿里云 OSS</n-button>
+          <n-button @click="router.push({ path: '/@admin/setting/storage/add/amazonS3', query: { type: 3 } })" ghost>Amazon S3</n-button>
+          <n-button @click="router.push({ path: '/@admin/setting/storage/add/qCloudCOS', query: { type: 4 } })" ghost>腾讯云 COS</n-button>
+          <n-button disabled ghost>更多存储支持中...</n-button>
+        </div>
+      </n-grid-item>
+    </n-grid>
   </div>
 </template>
-
-<style scoped>
-
-</style>
 
 <route lang="yaml">
 meta:

@@ -1,22 +1,24 @@
-import path from 'path'
+import path from 'node:path'
 import { defineConfig } from 'vite'
-import Preview from 'vite-plugin-vue-component-preview'
 import Vue from '@vitejs/plugin-vue'
 import Pages from 'vite-plugin-pages'
+import VueDevTools from 'vite-plugin-vue-devtools'
+
+// vite.config.ts
 import generateSitemap from 'vite-ssg-sitemap'
 import Layouts from 'vite-plugin-vue-layouts'
 import Components from 'unplugin-vue-components/vite'
 import AutoImport from 'unplugin-auto-import/vite'
 import Markdown from 'vite-plugin-vue-markdown'
 import { VitePWA } from 'vite-plugin-pwa'
-import VueI18n from '@intlify/vite-plugin-vue-i18n'
+import VueI18n from '@intlify/unplugin-vue-i18n/vite'
 import Inspect from 'vite-plugin-inspect'
 import Inspector from 'vite-plugin-vue-inspector'
 import LinkAttributes from 'markdown-it-link-attributes'
 import Unocss from 'unocss/vite'
 import Shiki from 'markdown-it-shiki'
 import VueMacros from 'unplugin-vue-macros/vite'
-import { ArcoResolver } from 'unplugin-vue-components/resolvers'
+import { NaiveUiResolver } from 'unplugin-vue-components/resolvers'
 
 export default defineConfig({
   resolve: {
@@ -40,13 +42,12 @@ export default defineConfig({
   },
 
   plugins: [
-    Preview(),
+    VueDevTools(),
 
     VueMacros({
       plugins: {
         vue: Vue({
           include: [/\.vue$/, /\.md$/],
-          reactivityTransform: true,
         }),
       },
     }),
@@ -54,7 +55,6 @@ export default defineConfig({
     // https://github.com/hannoeru/vite-plugin-pages
     Pages({
       extensions: ['vue', 'md'],
-      exclude: ['**/pages/path.vue'],
     }),
 
     // https://github.com/JohnCampionJr/vite-plugin-vue-layouts
@@ -69,12 +69,19 @@ export default defineConfig({
         'vue/macros',
         '@vueuse/head',
         '@vueuse/core',
+        {
+          'naive-ui': [
+            'useDialog',
+            'useMessage',
+            'useNotification',
+            'useLoadingBar',
+          ],
+        },
       ],
-      resolvers: [ArcoResolver()],
       dts: 'src/auto-imports.d.ts',
       dirs: [
         'src/composables',
-        'src/store',
+        'src/stores',
         'src/hooks',
       ],
       vueTemplate: true,
@@ -82,11 +89,7 @@ export default defineConfig({
 
     // https://github.com/antfu/unplugin-vue-components
     Components({
-      resolvers: [
-        ArcoResolver({
-          sideEffect: true,
-        }),
-      ],
+      resolvers: [NaiveUiResolver()],
       // allow auto load markdown components under `./src/components/`
       extensions: ['vue', 'md'],
       // allow auto import and register components used in markdown
@@ -127,7 +130,7 @@ export default defineConfig({
       includeAssets: ['favicon.svg', 'safari-pinned-tab.svg'],
       manifest: {
         name: 'DiyFile',
-        short_name: 'DiyDile',
+        short_name: 'DiyFile',
         theme_color: '#ffffff',
         icons: [
           {
@@ -150,10 +153,11 @@ export default defineConfig({
       },
     }),
 
-    // https://github.com/intlify/bundle-tools/tree/main/packages/vite-plugin-vue-i18n
+    // https://github.com/intlify/bundle-tools/tree/main/packages/unplugin-vue-i18n
     VueI18n({
       runtimeOnly: true,
       compositionOnly: true,
+      fullInstall: true,
       include: [path.resolve(__dirname, 'locales/**')],
     }),
 

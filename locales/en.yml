@@ -17,6 +17,7 @@ button:
   login: login
   copy: Copy
   copyUrl: Copy Url
+  copyProxyUrl: Copy Proxy Url
   copyOk: Copy Success
   add: Add
   edit: Edit
@@ -27,6 +28,11 @@ button:
   type: Type
   pwd: Update Password
   download: Download
+  proxyDownload: Proxy Download
+  backup: Backup
+  selectFile: Select File
+  restore: Restore
+  open: Open
 intro:
   desc: Opinionated Vite Starter Template
   dynamic-route: Demo of dynamic route
@@ -51,6 +57,7 @@ tip:
   isRememberMe: Remember Me
   cardTitle: Please fill in the information.
   rolePh: Please select a role.
+  empty: Nothing!
 menu:
   index: Dashboard
   setting:
@@ -62,7 +69,7 @@ menu:
     index: System
     setting: Setting
     user: User
-    faqs: FAQs
+    manual: Manual
 message:
   error: Error
 tag:
@@ -98,3 +105,6 @@ setting:
   base: Basic Config
   web: Site Config
   user: User Config
+header:
+  docs: Docs
+  github: Github

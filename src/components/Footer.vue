@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { getBeian } from '~/api/modules/systemConfig'
+import { ResultEnum } from '~/enums/httpEnum'
 
 const user = useUserStore()
 
 onMounted(() => {
   if (!user.beian) {
     getBeian().then((res) => {
-      if (res.code === 200) {
+      if (res.code === ResultEnum.SUCCESS) {
         user.setBeian(res.data.toString())
       }
     })
@@ -15,29 +16,10 @@ onMounted(() => {
 </script>
 
 <template>
-  <a-card hoverable :style="{ width: '100%' }">
-    <div
-      :style="{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-      }"
-    >
-      <span
-        v-if="!user.beian"
-        :style="{ display: 'flex', alignItems: 'center', color: '#1D2129' }"
-      >
-        <a-typography-text>Made with ❤ by Bess Croft.</a-typography-text>
-      </span>
-      <a v-else href="https://beian.miit.gov.cn/" target="_blank">{{ user.beian }}</a>
-      <a-tag color="gray">
-        <template #icon>
-          <icon-github />
-        </template>
-        <a-link href="https://github.com/besscroft">
-          GitHub
-        </a-link>
-      </a-tag>
-    </div>
-  </a-card>
+  <div flex text-center h-full justify-center items-center>
+    <a v-if="user.beian" href="https://beian.miit.gov.cn/" target="_blank">{{ user.beian }}</a>
+    <span v-else>
+      Made with ❤ by Bess Croft.
+    </span>
+  </div>
 </template>

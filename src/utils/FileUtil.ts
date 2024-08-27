@@ -3,6 +3,11 @@ export const getRawExtension = (fileName: string): string => {
   return fileName.slice(((fileName.lastIndexOf('.') - 1) >>> 0) + 2).toLowerCase()
 }
 
+/** 获取文件名 */
+export const getFileName = (filePath: string): string => {
+  return filePath.substring(filePath.lastIndexOf('/') + 1)
+}
+
 /** 判断是否为 md 文件 */
 export const isMarkdown = (fileName: string): boolean => {
   const ext = getRawExtension(fileName)
@@ -37,4 +42,19 @@ export const isImage = (fileName: string): boolean => {
 export const isPDF = (fileName: string): boolean => {
   const ext = getRawExtension(fileName)
   return ['pdf'].includes(ext)
+}
+
+/** 获取路径中的文件名，同时兼容 Windows 和 Linux */
+export const getFileNameFromPath = (path: string): string => {
+  // 如果包含 \ 则使用 \ 分割，否则使用 / 分割，并获取最后一个 \ 或者 / 后面的文件名
+  if (path.includes('\\')) {
+    const lastIndex = path.lastIndexOf('\\')
+    return path.substring(lastIndex + 1)
+  } else if (path.includes('/')) {
+    const lastIndex = path.lastIndexOf('/')
+    return path.substring(lastIndex + 1)
+  } else {
+    // 如果都不包含，认为就是文件名
+    return path
+  }
 }

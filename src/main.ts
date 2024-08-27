@@ -1,28 +1,25 @@
 import { ViteSSG } from 'vite-ssg'
 import { setupLayouts } from 'virtual:generated-layouts'
-import Previewer from 'virtual:vue-component-preview'
-import ArcoVue from '@arco-design/web-vue'
-import ArcoVueIcon from '@arco-design/web-vue/es/icon'
-import { createPinia } from 'pinia'
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
+import { createPinia } from 'pinia'
 import { createWebHistory } from 'vue-router'
 import App from './App.vue'
 import type { UserModule } from './types'
-import { AxiosCanceler } from '~/api/helper/axiosCancel'
 import generatedRoutes from '~pages'
-import { getInfo } from '~/api/modules/user'
 
-// 樱花粉皮肤
-// import '@arco-themes/vue-sakura/css/arco.css'
-// 默认皮肤
-import '@arco-design/web-vue/dist/arco.css'
-import 'aplayer/dist/APlayer.min.css'
 import '@unocss/reset/tailwind.css'
 import './styles/main.css'
 import 'uno.css'
+import 'aplayer/dist/APlayer.min.css'
+import { ResultEnum } from '~/enums/httpEnum'
+import { getInfo } from '~/api/modules/user'
+import { setupNaiveDiscreteApi } from '~/plugins/naiveDiscreteApi'
+import { getDownloadFile, getDownloadUrl } from '~/api/modules/file'
+import { getFileNameFromPath } from '~/utils/FileUtil'
+import { getBaseUrl } from '~/utils/WindowUtil'
 
 /* global */
-console.log(`${'\n'} %c DiyFile v0.1.8 %c https://github.com/besscroft/diyfile ${'\n'}${'\n'}`, 'color: #fadfa3; background: #030307; padding:5px 0;', 'background: #fadfa3; padding:5px 0;')
+console.log(`${'\n'} %c DiyFile v0.8.3 %c https://github.com/besscroft/diyfile ${'\n'}${'\n'}`, 'color: #fadfa3; background: #030307; padding:5px 0;', 'background: #fadfa3; padding:5px 0;')
 
 generatedRoutes.push({
   path: '/',
@@ -40,7 +37,6 @@ generatedRoutes.push({
 })
 
 const routes = setupLayouts(generatedRoutes)
-const axiosCanceler = new AxiosCanceler()
 
 // https://github.com/antfu/vite-ssg
 export const createApp = ViteSSG(
@@ -52,11 +48,43 @@ export const createApp = ViteSSG(
       .forEach(i => i.install?.(ctx))
     const pinia = createPinia()
     pinia.use(piniaPluginPersistedstate)
-    ctx.app.use(ArcoVue).use(ArcoVueIcon).use(Previewer).use(pinia)
+    ctx.app.use(pinia).use(setupNaiveDiscreteApi)
     if (ctx.isClient) {
       ctx.router.beforeEach(async (to, from, next) => {
-        axiosCanceler.removeAllPending()
         const user = useUserStore()
+        if (to.path.startsWith('/api/')) {
+          const pathArr = to.query?.path.toString()
+          const firstIndex = pathArr.indexOf('/')
+          const secondIndex = pathArr.indexOf('/', firstIndex + 1)
+          const storageKey = pathArr.substring(firstIndex + 1, secondIndex)
+          const path = pathArr.substring(secondIndex + 1)
+          const fullPath = `${getBaseUrl()}/api/raw/?path=${pathArr}`
+          if (to.path.startsWith('/api/raw/')) {
+            await getDownloadUrl(storageKey, path, fullPath).then((res) => {
+              if (res.code === ResultEnum.SUCCESS && typeof res.data === 'string') {
+                window.location.href = res.data
+              } else {
+                window.location.href = 'localhost'
+              }
+            }).catch(() => {
+              window.location.href = 'localhost'
+            })
+            return next(false)
+          }
+          if (to.path.startsWith('/api/proxy/')) {
+            await getDownloadFile(storageKey, path).then((res) => {
+              const url = window.URL.createObjectURL(new Blob([res]))
+              const a = document.createElement('a')
+              a.href = url
+              a.download = getFileNameFromPath(path)
+              document.body.appendChild(a)
+              a.click()
+              a.remove()
+              window.URL.revokeObjectURL(url)
+            })
+            return next(false)
+          }
+        }
         if (to.path === '/' || to.path === '/@login' || to.path === '/@about' || !to.path.startsWith('/@')) {
           return next()
         }
@@ -65,7 +93,7 @@ export const createApp = ViteSSG(
         }
         if (!user.userName) {
           await getInfo().then((res) => {
-            if (res.code !== 200) {
+            if (res.code !== ResultEnum.SUCCESS) {
               return next({ path: '/@login', replace: true })
             }
             user.setUserName(res.data.userName)
